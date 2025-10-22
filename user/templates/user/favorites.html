@@ -1,0 +1,351 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}我的收藏{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'js/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 40px 0;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .favorite-card {
+        background: white;
+        border-radius: 15px;
+        overflow: hidden;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        margin-bottom: 30px;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .favorite-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+    }
+
+    .favorite-image {
+        width: 100%;
+        height: 200px;
+        object-fit: cover;
+        background: #f0f0f0;
+    }
+
+    .favorite-info {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .battery-name {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #333;
+        margin-bottom: 10px;
+        line-height: 1.4;
+    }
+
+    .battery-type {
+        color: #666;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .specs-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 0.9rem;
+    }
+
+    .specs-item:last-child {
+        border-bottom: none;
+    }
+
+    .specs-label {
+        color: #666;
+        font-weight: 500;
+    }
+
+    .specs-value {
+        color: #333;
+        font-weight: 600;
+    }
+
+    .battery-price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #e74c3c;
+        margin-top: 15px;
+        margin-bottom: 15px;
+    }
+
+    .battery-price .unit {
+        font-size: 0.8rem;
+        color: #999;
+    }
+
+    .favorite-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: auto;
+    }
+
+    .btn-view-detail {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        flex: 1;
+        text-decoration: none;
+        text-align: center;
+        cursor: pointer;
+    }
+
+    .btn-view-detail:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-remove-favorite {
+        background: linear-gradient(45deg, #e74c3c, #c0392b);
+        border: none;
+        color: white;
+        padding: 10px 20px;
+        border-radius: 25px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        flex: 1;
+        cursor: pointer;
+    }
+
+    .btn-remove-favorite:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(231, 76, 60, 0.4);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: white;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #ddd;
+        margin-bottom: 20px;
+    }
+
+    .empty-state p {
+        color: #666;
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+    }
+
+    .btn-go-shopping {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 25px;
+        font-size: 1rem;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-go-shopping:hover {
+        color: white;
+        text-decoration: none;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    }
+
+    .collect-time {
+        color: #999;
+        font-size: 0.85rem;
+        margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .favorite-card {
+            flex-direction: row;
+            height: auto;
+        }
+
+        .favorite-image {
+            width: 120px;
+            height: 120px;
+            flex-shrink: 0;
+        }
+
+        .favorite-info {
+            padding: 15px;
+        }
+
+        .favorite-actions {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- 页面头部 -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title"><i class="glyphicon glyphicon-heart"></i> 我的收藏</h1>
+    </div>
+</div>
+
+<div class="container">
+    {% if favorites_with_battery %}
+    <div class="row">
+        {% for item in favorites_with_battery %}
+        <div class="col-md-6 col-lg-4">
+            <div class="favorite-card">
+                <!-- 电池图片 -->
+                <img src="{{ item.battery.image_url }}" alt="{{ item.battery.name }}" class="favorite-image">
+
+                <!-- 电池信息 -->
+                <div class="favorite-info">
+                    <h3 class="battery-name">{{ item.battery.name }}</h3>
+                    <p class="battery-type">
+                        <strong>分类：</strong>
+                        {{ item.battery.battery_type.category.name }} - {{ item.battery.battery_type.name }}
+                    </p>
+
+                    <!-- 电池规格 -->
+                    <div class="battery-specs">
+                        <div class="specs-item">
+                            <span class="specs-label"><i class="glyphicon glyphicon-flash"></i> 容量</span>
+                            <span class="specs-value">{{ item.battery.capacity }}Ah</span>
+                        </div>
+                        <div class="specs-item">
+                            <span class="specs-label"><i class="glyphicon glyphicon-ok"></i> 电压</span>
+                            <span class="specs-value">{{ item.battery.voltage }}V</span>
+                        </div>
+                        <div class="specs-item">
+                            <span class="specs-label"><i class="glyphicon glyphicon-th"></i> 功率</span>
+                            <span class="specs-value">{{ item.battery.power }}W</span>
+                        </div>
+                        <div class="specs-item">
+                            <span class="specs-label"><i class="glyphicon glyphicon-scale"></i> 重量</span>
+                            <span class="specs-value">{{ item.battery.weight }}kg</span>
+                        </div>
+                        <div class="specs-item">
+                            <span class="specs-label"><i class="glyphicon glyphicon-map-marker"></i> 位置</span>
+                            <span class="specs-value">{{ item.battery.location }}</span>
+                        </div>
+                    </div>
+
+                    <!-- 价格 -->
+                    <div class="battery-price">
+                        ¥{{ item.battery.daily_rental_price }}
+                        <span class="unit">/天</span>
+                    </div>
+
+                    <!-- 收藏时间 -->
+                    <p class="collect-time">
+                        <i class="glyphicon glyphicon-time"></i>
+                        收藏于：{{ item.favorite.created_at|date:"Y-m-d H:i" }}
+                    </p>
+
+                    <!-- 操作按钮 -->
+                    <div class="favorite-actions">
+                        <a href="{% url 'battery:detail' item.battery.id %}" class="btn-view-detail">
+                            <i class="glyphicon glyphicon-eye-open"></i> 查看详情
+                        </a>
+                        <button class="btn-remove-favorite" onclick="removeFavorite({{ item.battery.id }})">
+                            <i class="glyphicon glyphicon-trash"></i> 取消收藏
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <!-- 空状态 -->
+    <div class="empty-state">
+        <i class="glyphicon glyphicon-heart-empty"></i>
+        <h3>您还没有收藏任何电池</h3>
+        <p>快去浏览电池租赁中心，收藏您感兴趣的电池吧！</p>
+        <a href="{% url 'battery:list' %}" class="btn-go-shopping">
+            <i class="glyphicon glyphicon-shopping-cart"></i> 去电池租赁
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    function removeFavorite(batteryId) {
+        if (confirm('确定要取消收藏吗？')) {
+            fetch(`/user/favorite/${batteryId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken'),
+                    'Content-Type': 'application/json',
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        alert(data.message);
+                        location.reload();
+                    } else {
+                        alert(data.message);
+                    }
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                    alert('操作失败，请重试');
+                });
+        }
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+</script>
+{% endblock %}

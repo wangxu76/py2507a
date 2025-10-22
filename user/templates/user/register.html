@@ -1,0 +1,62 @@
+{% extends 'user/user_base.html' %}
+{% block title %}注册 - 新能源电池租赁管理系统{% endblock %}
+{% block form %}
+<div class="text-center mb-4">
+    <h3 class="fw-bold text-gradient">注册</h3>
+    <small class="text-muted">创建您的新账户</small>
+</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="flow-input">
+        <input type="text" name="username" id="id_username" required placeholder=" ">
+        <label for="id_username">用户名</label>
+        {{ form.username.errors }}
+    </div>
+
+    <div class="flow-input">
+        <input type="email" name="email" id="id_email" required placeholder=" ">
+        <label for="id_email">邮 箱</label>
+        {{ form.email.errors }}
+    </div>
+
+    <div class="flow-input">
+        <input type="password" name="password" id="id_password" required placeholder=" ">
+        <label for="id_password">密 码</label>
+        {{ form.password.errors }}
+    </div>
+
+    <div class="flow-input">
+        <input type="password" name="password2" id="id_password2" required placeholder=" ">
+        <label for="id_password2">确认密码</label>
+        {{ form.password2.errors }}
+    </div>
+    <div class="flow-input">
+
+        {{ form.captcha }}
+
+       {{ form.captcha.errors }}
+{#        <br>#}
+{# <label for="id_captcha_1">请输入验证码</label>#}
+
+{#        {{ form.captcha.label_tag }}#}
+</div>
+
+    <button class="btn-gradient btn-lg mb-3" type="submit">注 册</button>
+
+    <div class="text-center">
+        已有账号？<a href="{% url 'user:login' %}" class="text-decoration-none">立即登录</a>
+    </div>
+</form>
+{% endblock %}
+{% block js %}
+    <script>
+    $('.captcha').click(function () {
+        $.getJSON("/captcha/refresh/", function (result) {
+           $('.captcha').attr('src', result['image_url']);
+            $('#id_captcha_0').val(result['key'])
+        });
+    });
+    </script>
+{% endblock %}

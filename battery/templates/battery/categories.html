@@ -1,0 +1,441 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}电池分类 - 新能源电池管理系统{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'js/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+<style>
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  }
+
+  .page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .page-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .category-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 30px;
+    margin-bottom: 50px;
+  }
+
+  .category-card {
+    background: white;
+    border-radius: 20px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    cursor: pointer;
+    position: relative;
+  }
+
+  .category-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .category-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 30px;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .category-header::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+    animation: float 6s ease-in-out infinite;
+  }
+
+  .category-icon {
+    font-size: 3rem;
+    margin-bottom: 15px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .category-name {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    position: relative;
+    z-index: 2;
+  }
+
+  .category-description {
+    font-size: 0.9rem;
+    opacity: 0.9;
+    position: relative;
+    z-index: 2;
+  }
+
+  .category-body {
+    padding: 25px;
+  }
+
+  .category-stats {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 20px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .stat-item {
+    text-align: center;
+  }
+
+  .stat-number {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #667eea;
+    margin-bottom: 5px;
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #666;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .category-features {
+    margin-bottom: 20px;
+  }
+
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+    color: #555;
+    font-size: 0.9rem;
+  }
+
+  .feature-icon {
+    color: #27ae60;
+    font-size: 0.8rem;
+  }
+
+  .category-actions {
+    display: flex;
+    gap: 10px;
+  }
+
+  .btn-explore {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .btn-explore:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+    color: white;
+    text-decoration: none;
+  }
+
+  .btn-detail {
+    background: #f8f9fa;
+    border: 2px solid #e9ecef;
+    color: #333;
+    padding: 10px 20px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+    text-decoration: none;
+    text-align: center;
+  }
+
+  .btn-detail:hover {
+    background: #e9ecef;
+    border-color: #667eea;
+    color: #667eea;
+    text-decoration: none;
+  }
+
+  .battery-count-badge {
+    position: absolute;
+    top: 15px;
+    right: 15px;
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    backdrop-filter: blur(10px);
+  }
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+  }
+
+  .search-section {
+    background: white;
+    border-radius: 15px;
+    padding: 25px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .search-form {
+    display: flex;
+    gap: 15px;
+    align-items: end;
+  }
+
+  .search-input {
+    flex: 1;
+  }
+
+  .search-input input {
+    border: 2px solid #e9ecef;
+    border-radius: 25px;
+    padding: 12px 20px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .search-input input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+
+  .btn-search {
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border: none;
+    color: white;
+    padding: 12px 25px;
+    border-radius: 25px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+  }
+
+  .btn-search:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+  }
+
+  @keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(180deg); }
+  }
+
+  @media (max-width: 768px) {
+    .category-grid {
+      grid-template-columns: 1fr;
+    }
+    
+    .search-form {
+      flex-direction: column;
+    }
+    
+    .category-actions {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- 页面头部 -->
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-title">电池分类</h1>
+    <p class="page-subtitle">探索不同类型的新能源电池，找到最适合您的选择</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- 搜索区域 -->
+  <div class="search-section">
+    <form class="search-form" method="get">
+      <div class="search-input">
+        <input type="text" name="search" placeholder="搜索电池分类..." 
+               value="{{ request.GET.search }}" class="form-control">
+      </div>
+      <button type="submit" class="btn btn-search">
+        <i class="glyphicon glyphicon-search"></i> 搜索
+      </button>
+    </form>
+  </div>
+
+  <!-- 分类列表 -->
+  {% if categories %}
+    <div class="category-grid">
+      {% for category in categories %}
+      <div class="category-card"onclick="location.href='{% url 'battery:category_batteries' category.id %}'">
+        <div class="category-header">
+          <div class="battery-count-badge">{{ category.battery_count }} 个电池</div>
+          <div class="category-icon">
+            <i class="glyphicon {{ category.icon }}"></i>
+          </div>
+          <h3 class="category-name">{{ category.name }}</h3>
+          <p class="category-description">{{ category.description|default:'专业的电池分类，满足不同需求' }}</p>
+        </div>
+        
+        <div class="category-body">
+          <div class="category-stats">
+            <div class="stat-item">
+              <div class="stat-number">{{ category.battery_count }}</div>
+              <div class="stat-label">电池数量</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">99%</div>
+              <div class="stat-label">可用率</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">24h</div>
+              <div class="stat-label">服务时间</div>
+            </div>
+          </div>
+          
+          <div class="category-features">
+            <div class="feature-item">
+              <i class="glyphicon glyphicon-ok feature-icon"></i>
+              <span>高质量电池</span>
+            </div>
+            <div class="feature-item">
+              <i class="glyphicon glyphicon-ok feature-icon"></i>
+              <span>实时监控</span>
+            </div>
+            <div class="feature-item">
+              <i class="glyphicon glyphicon-ok feature-icon"></i>
+              <span>快速充电</span>
+            </div>
+            <div class="feature-item">
+              <i class="glyphicon glyphicon-ok feature-icon"></i>
+              <span>安全可靠</span>
+            </div>
+          </div>
+          
+          <div class="category-actions">
+            <a href="{% url 'battery:category_batteries' category.id %}" class="btn-explore">
+              <i class="glyphicon glyphicon-flash"></i> 浏览电池
+            </a>
+            <a href="{% url 'battery:list' %}?category={{ category.id }}" class="btn-detail">
+              <i class="glyphicon glyphicon-info-sign"></i> 查看详情
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <!-- 空状态 -->
+    <div class="empty-state">
+      <i class="glyphicon glyphicon-flash"></i>
+      <h3>暂无电池分类</h3>
+      <p>系统正在准备中，请稍后再来查看</p>
+      <a href="{% url 'battery:list' %}" class="btn btn-primary">
+        <i class="glyphicon glyphicon-arrow-left"></i> 返回电池列表
+      </a>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+$(document).ready(function() {
+  // 分类卡片悬停效果
+  $('.category-card').hover(
+    function() {
+      $(this).find('.category-header').css('transform', 'scale(1.02)');
+    },
+    function() {
+      $(this).find('.category-header').css('transform', 'scale(1)');
+    }
+  );
+
+  // 搜索表单提交
+  $('.search-form').on('submit', function(e) {
+    var searchValue = $('input[name="search"]').val().trim();
+    if (searchValue === '') {
+      e.preventDefault();
+      alert('请输入搜索关键词');
+    }
+  });
+
+  // 分类卡片点击效果
+  $('.category-card').on('click', function() {
+    var href = $(this).attr('onclick');
+    if (href) {
+      var url = href.match(/location\.href='([^']+)'/)[1];
+      window.location.href = url;
+    }
+  });
+
+  // 统计数字动画
+  function animateNumbers() {
+    $('.stat-number').each(function() {
+      var $this = $(this);
+      var countTo = parseInt($this.text());
+      
+      if (!isNaN(countTo)) {
+        $({ countNum: 0 }).animate({
+          countNum: countTo
+        }, {
+          duration: 1500,
+          easing: 'swing',
+          step: function() {
+            $this.text(Math.floor(this.countNum));
+          },
+          complete: function() {
+            $this.text(this.countNum);
+          }
+        });
+      }
+    });
+  }
+
+  // 当页面加载完成后执行动画
+  setTimeout(animateNumbers, 500);
+});
+</script>
+{% endblock %}

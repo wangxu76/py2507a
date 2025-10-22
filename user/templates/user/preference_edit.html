@@ -1,0 +1,128 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}偏好设置{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="page-header">
+                <h2><i class="glyphicon glyphicon-cog"></i> 偏好设置</h2>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4>界面设置</h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">语言偏好</label>
+                            <div class="col-sm-9">
+                                <select name="language" class="form-control">
+                                    <option value="zh" {% if preference.language == 'zh' %}selected{% endif %}>中文</option>
+                                    <option value="en" {% if preference.language == 'en' %}selected{% endif %}>English</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">主题偏好</label>
+                            <div class="col-sm-9">
+                                <select name="theme" class="form-control">
+                                    <option value="light" {% if preference.theme == 'light' %}selected{% endif %}>浅色主题</option>
+                                    <option value="dark" {% if preference.theme == 'dark' %}selected{% endif %}>深色主题</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4>通知设置</h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="email_notifications" {% if preference.email_notifications %}checked{% endif %}>
+                                        接收邮件通知
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="sms_notifications" {% if preference.sms_notifications %}checked{% endif %}>
+                                        接收短信通知
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4>租赁设置</h4>
+                    </div>
+                    <div class="panel-body">
+                        <div class="form-group">
+                            <div class="col-sm-offset-3 col-sm-9">
+                                <div class="checkbox">
+                                    <label>
+                                        <input type="checkbox" name="auto_renewal" {% if preference.auto_renewal %}checked{% endif %}>
+                                        自动续租
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">偏好电池类型</label>
+                            <div class="col-sm-9">
+                                <input type="text" name="preferred_battery_type" class="form-control" value="{{ preference.preferred_battery_type }}" placeholder="请输入偏好的电池类型">
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="col-sm-3 control-label">最大日租金限制(元)</label>
+                            <div class="col-sm-9">
+                                <input type="number" name="max_daily_rental" class="form-control" value="{{ preference.max_daily_rental }}" step="0.01" min="0">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="glyphicon glyphicon-save"></i> 保存设置
+                        </button>
+                        <a href="{% url 'user:center' %}" class="btn btn-default">
+                            <i class="glyphicon glyphicon-arrow-left"></i> 返回
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,405 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}附近网点{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'js/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+<script src="https://api.map.baidu.com/api?v=3.0&ak=CRfAza5WQJ7SOtHWeIBJdlSvMpiZUyhP"></script>
+<style>
+    body {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        font-family: 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+    }
+
+    .page-header {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        padding: 30px 0;
+        margin-bottom: 30px;
+        text-align: center;
+    }
+
+    .page-title {
+        font-size: 2.2rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+        text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    }
+
+    .map-container {
+        display: flex;
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    #baiduMap {
+        width: 100%;
+        height: 600px;
+        border-radius: 15px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .stations-list {
+        max-height: 600px;
+        overflow-y: auto;
+    }
+
+    .station-item {
+        background: white;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        cursor: pointer;
+        border-left: 4px solid #667eea;
+    }
+
+    .station-item:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .station-item.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-left-color: #fff;
+    }
+
+    .station-name {
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .station-info {
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .station-info-item {
+        margin-bottom: 5px;
+    }
+
+    .distance-badge {
+        display: inline-block;
+        background: #ff6b6b;
+        color: white;
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-top: 10px;
+    }
+
+    .btn-view-detail {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        transition: all 0.3s ease;
+        margin-top: 12px;
+        width: 100%;
+    }
+
+    .btn-view-detail:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .control-panel {
+        background: white;
+        border-radius: 15px;
+        padding: 20px;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+        margin-bottom: 20px;
+    }
+
+    .location-btn {
+        background: linear-gradient(45deg, #667eea, #764ba2);
+        border: none;
+        color: white;
+        padding: 10px 30px;
+        border-radius: 25px;
+        font-size: 1rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .location-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .radius-control {
+        margin: 15px 0;
+    }
+
+    .radius-control label {
+        font-weight: 600;
+        margin-right: 15px;
+    }
+
+    .search-input {
+        margin-top: 15px;
+    }
+
+    .search-input input {
+        border-radius: 8px;
+        border: 2px solid #e0e0e0;
+        padding: 10px 15px;
+    }
+
+    .search-input input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        background: white;
+        border-radius: 15px;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #ddd;
+        margin-bottom: 15px;
+    }
+
+    @media (max-width: 1200px) {
+        .map-container {
+            flex-direction: column;
+        }
+
+        #baiduMap {
+            height: 500px;
+        }
+
+        .stations-list {
+            max-height: 400px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- 页面头部 -->
+<div class="page-header">
+    <div class="container">
+        <h1 class="page-title"><i class="glyphicon glyphicon-map-marker"></i> 附近网点</h1>
+        <p style="opacity: 0.9; margin-bottom: 0;">找到离您最近的电池租赁网点，轻松租赁和归还电池</p>
+    </div>
+</div>
+
+<div class="container">
+    <!-- 控制面板 -->
+    <div class="control-panel">
+        <div class="row">
+            <div class="col-md-6">
+                <button class="location-btn" id="locateBtn">
+                    <i class="glyphicon glyphicon-screenshot"></i> 定位我的位置
+                </button>
+                <div class="radius-control">
+                    <label>搜索范围：</label>
+                    <select id="radiusSelect" class="form-control" style="width: 150px; display: inline-block;">
+                        <option value="1000">1 km</option>
+                        <option value="2000">2 km</option>
+                        <option value="5000" selected>5 km</option>
+                        <option value="10000">10 km</option>
+                        <option value="20000">20 km</option>
+                    </select>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="search-input">
+                    <input type="text" id="searchInput" class="form-control" placeholder="搜索网点名称...">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 地图和列表 -->
+    <div class="map-container">
+        <div style="width: 100%;">
+            <!-- 百度地图容器 - 需要你替换 AK 密钥 -->
+            <div id="baiduMap"></div>
+            <div style="margin-top: 10px; font-size: 0.9rem; color: #999;">
+                💡 提示：点击地图上的标记或下方的网点即可查看详情
+            </div>
+        </div>
+    </div>
+
+    <!-- 网点列表 -->
+    <div style="background: white; border-radius: 15px; padding: 20px; box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);">
+        <h3 style="margin-top: 0;"><i class="glyphicon glyphicon-th-list"></i> 网点列表</h3>
+        <div id="stationsList" class="stations-list">
+            {% if stations %}
+            {% for station in stations %}
+            <div class="station-item"
+                onclick="selectStation({{ station.id }}, {{ station.latitude }}, {{ station.longitude }})"
+                data-station-id="{{ station.id }}">
+                <div class="station-name">{{ station.name }}</div>
+                <div class="station-info">
+                    <div class="station-info-item">
+                        <i class="glyphicon glyphicon-map-marker"></i> {{ station.address }}
+                    </div>
+                    <div class="station-info-item">
+                        <i class="glyphicon glyphicon-phone"></i> {{ station.phone }}
+                    </div>
+                    <div class="station-info-item">
+                        <i class="glyphicon glyphicon-time"></i> {{ station.business_hours }}
+                    </div>
+                    <div class="station-info-item">
+                        <i class="glyphicon glyphicon-flash"></i>
+                        电池库存: {{ station.current_batteries }}/{{ station.max_batteries }}
+                    </div>
+                    <span class="distance-badge" id="distance-{{ station.id }}">加载中...</span>
+                </div>
+                <a href="{% url 'station:detail' station.id %}" class="btn-view-detail">
+                    <i class="glyphicon glyphicon-eye-open"></i> 查看详情
+                </a>
+            </div>
+            {% endfor %}
+            {% else %}
+            <div class="empty-state">
+                <i class="glyphicon glyphicon-inbox"></i>
+                <h3>暂无网点信息</h3>
+                <p>请稍后重试或联系客服</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+    // 初始化地图 - 参考用户的工作方式
+    const map = new BMap.Map("baiduMap");
+    const point = new BMap.Point(113.6254, 34.7466); // 郑州
+    map.centerAndZoom(point, 12);
+    map.enableScrollWheelZoom(true);
+
+    // 添加控件 - 保留地图类型控件但移除3D，增加详细度
+    const mapTypeControl = new BMap.MapTypeControl({
+        anchor: BMAP_ANCHOR_TOP_LEFT,
+        mapTypes: [
+            BMAP_NORMAL_MAP,
+            BMAP_SATELLITE_MAP,
+            BMAP_HYBRID_MAP
+        ]
+    });
+    map.addControl(mapTypeControl);
+    map.addControl(new BMap.NavigationControl());
+    map.addControl(new BMap.ScaleControl());
+
+    // 当前位置标记
+    let currentLocationMarker = null;
+
+    // 获取当前位置并定位
+    function locateCurrentPosition() {
+        const locateBtn = document.getElementById('locateBtn');
+        if (locateBtn) {
+            locateBtn.disabled = true;
+            locateBtn.textContent = '定位中...';
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    const latitude = position.coords.latitude;
+                    const longitude = position.coords.longitude;
+
+                    // 移除之前的位置标记
+                    if (currentLocationMarker) {
+                        map.removeOverlay(currentLocationMarker);
+                    }
+
+                    // 创建当前位置的点
+                    const currentPoint = new BMap.Point(longitude, latitude);
+
+                    // 添加标记 - 用蓝色表示当前位置
+                    currentLocationMarker = new BMap.Marker(currentPoint);
+                    map.addOverlay(currentLocationMarker);
+
+                    // 设置地图中心到当前位置
+                    map.setCenter(currentPoint);
+                    map.setZoom(19);
+
+                    // 添加信息窗口
+                    const infoWindow = new BMap.InfoWindow("<div style='width:200px;'><h4>您的位置</h4><p>纬度: " + latitude.toFixed(6) + "<br>经度: " + longitude.toFixed(6) + "</p></div>");
+                    currentLocationMarker.addEventListener("click", function () {
+                        map.openInfoWindow(infoWindow, currentPoint);
+                    });
+
+                    console.log('✅ 定位成功，当前位置: ' + latitude + ', ' + longitude);
+
+                    if (locateBtn) {
+                        locateBtn.disabled = false;
+                        locateBtn.textContent = '定位到当前位置';
+                    }
+                },
+                function (error) {
+                    console.error('❌ 定位失败:', error.message);
+                    alert('定位失败: ' + error.message + '\n请检查浏览器权限或网络连接');
+                    if (locateBtn) {
+                        locateBtn.disabled = false;
+                        locateBtn.textContent = '定位到当前位置';
+                    }
+                }
+            );
+        } else {
+            alert('您的浏览器不支持地理定位功能');
+            if (locateBtn) {
+                locateBtn.disabled = false;
+                locateBtn.textContent = '定位到当前位置';
+            }
+        }
+    }
+
+    // 添加郑州中心标记
+    const marker = new BMap.Marker(point);
+    map.addOverlay(marker);
+
+    // 添加信息窗口
+    const infoWindow = new BMap.InfoWindow("<div style='width:200px;'><h4>郑州市中心</h4><p>坐标: 113.6254, 34.7466</p></div>");
+    marker.addEventListener("click", function () {
+        map.openInfoWindow(infoWindow, point);
+    });
+
+    console.log('✅ 地图初始化成功');
+
+    // 页面加载完后绑定定位按钮
+    document.addEventListener('DOMContentLoaded', function () {
+        const locateBtn = document.getElementById('locateBtn');
+        if (locateBtn) {
+            locateBtn.addEventListener('click', locateCurrentPosition);
+        }
+
+        // 搜索网点
+        var searchInput = document.getElementById('searchInput');
+        if (searchInput) {
+            searchInput.addEventListener('input', function (e) {
+                var searchText = e.target.value.toLowerCase();
+                document.querySelectorAll('.station-item').forEach(function (item) {
+                    var stationName = item.querySelector('.station-name').textContent.toLowerCase();
+                    if (stationName.includes(searchText)) {
+                        item.style.display = 'block';
+                    } else {
+                        item.style.display = 'none';
+                    }
+                });
+            });
+        }
+    });
+</script>
+{% endblock %}

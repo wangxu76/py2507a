@@ -1,0 +1,470 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load My_temp %}
+{% block css %}
+<style>
+    body {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        min-height: 100vh;
+        padding: 20px 0;
+    }
+
+    .user-profile-container {
+        max-width: 920px;
+        margin: 2.5rem auto;
+        padding: 2.5rem 2.5rem;
+        background: #ffffff;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .user-profile-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 6px;
+        background: linear-gradient(90deg, #667eea, #764ba2, #f093fb);
+    }
+
+    .page-title {
+        text-align: center;
+        color: #1f2937;
+        margin-bottom: 2.5rem;
+        font-weight: 800;
+        font-size: 2.2rem;
+        letter-spacing: 0.5px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .profile-header {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        margin-bottom: 2rem;
+    }
+
+    .avatar-container {
+        position: relative;
+        width: 180px;
+        height: 180px;
+        margin-bottom: 1.5rem;
+    }
+
+    .avatar-container::before {
+        content: '';
+        position: absolute;
+        top: -10px;
+        left: -10px;
+        right: -10px;
+        bottom: -10px;
+        background: linear-gradient(45deg, #667eea, #764ba2, #f093fb, #667eea);
+        border-radius: 50%;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        animation: rotate 3s linear infinite;
+    }
+
+    .avatar-container:hover::before {
+        opacity: 1;
+    }
+
+    @keyframes rotate {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    .head {
+        width: 180px;
+        height: 180px;
+        border: 5px solid #ffffff;
+        border-radius: 50%;
+        background: url("/media/{{ request.user.head }}") no-repeat center;
+        background-size: cover;
+        overflow: hidden;
+        position: relative;
+        z-index: 1;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+    }
+
+    .head:hover {
+        transform: translateY(-5px) scale(1.05);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.4);
+    }
+
+    .head-label {
+        display: block;
+        text-align: center;
+        margin-bottom: 1rem;
+        font-weight: 600;
+        color: #4b5563;
+    }
+
+    .head input {
+        display: block;
+        width: 100%;
+        height: 100%;
+        opacity: 0;
+        cursor: pointer;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 10;
+    }
+
+    .avatar-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(rgba(0, 0, 0, 0.15), rgba(0, 0, 0, 0.6));
+        color: #fff;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        pointer-events: none;
+    }
+
+    .head:hover .avatar-overlay {
+        opacity: 1;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+        padding: 2rem;
+        border-radius: 16px;
+        background: linear-gradient(135deg, #f8f9ff 0%, #f0f4ff 100%);
+        border: 2px solid #e5edff;
+        transition: all 0.3s ease;
+    }
+
+    .form-section:hover {
+        border-color: #667eea;
+        box-shadow: 0 8px 25px rgba(102, 126, 234, 0.15);
+        transform: translateY(-2px);
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 800;
+        margin-bottom: 1.5rem;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .section-title::before {
+        content: "";
+        display: inline-block;
+        width: 10px;
+        height: 24px;
+        border-radius: 999px;
+        background: linear-gradient(180deg, #667eea, #764ba2);
+        box-shadow: 0 4px 10px rgba(102, 126, 234, 0.3);
+    }
+
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 600;
+        color: #374151;
+    }
+
+    /* Make native Django-rendered inputs look modern without changing backend widgets */
+    .user-profile-container input[type="text"],
+    .user-profile-container input[type="email"],
+    .user-profile-container input[type="password"],
+    .user-profile-container input[type="datetime"],
+    .user-profile-container input[type="datetime-local"],
+    .user-profile-container input[type="date"],
+    .user-profile-container input[type="time"],
+    .user-profile-container textarea,
+    .user-profile-container select,
+    .form-control {
+        width: 100%;
+        padding: 0.8rem 0.95rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 10px;
+        font-size: 0.98rem;
+        transition: box-shadow 0.2s ease, border-color 0.2s ease;
+        background-color: #ffffff;
+    }
+
+    .user-profile-container textarea {
+        min-height: 140px;
+        resize: vertical;
+    }
+
+    .user-profile-container input:focus,
+    .user-profile-container textarea:focus,
+    .user-profile-container select:focus,
+    .form-control:focus {
+        border-color: #60a5fa;
+        outline: none;
+        box-shadow: 0 0 0 4px rgba(96, 165, 250, 0.2);
+    }
+
+    .user-profile-container input[disabled],
+    .user-profile-container textarea[disabled],
+    .user-profile-container select[disabled],
+    .form-control:disabled {
+        background-color: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-submit {
+        display: block;
+        width: 100%;
+        padding: 1rem 1.5rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: #fff;
+        border: none;
+        border-radius: 14px;
+        font-size: 1.1rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.35);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .btn-submit::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+    }
+
+    .btn-submit:hover::before {
+        width: 300px;
+        height: 300px;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(102, 126, 234, 0.45);
+    }
+
+    .btn-submit:active {
+        transform: translateY(-1px);
+    }
+
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .text-center {
+        text-align: center;
+    }
+
+    @media (max-width: 768px) {
+        .user-profile-container {
+            margin: 1rem;
+            padding: 1rem;
+        }
+
+        .head,
+        .head input {
+            width: 140px;
+            height: 140px;
+        }
+
+        .avatar-container {
+            width: 140px;
+            height: 140px;
+        }
+    }
+</style>
+{% endblock %}
+
+
+{% block js %}
+<script>
+    window.onload = function () {
+        let head_input = document.querySelector("#id_head");
+        let head = document.querySelector(".head");
+
+        if (head_input && head) {
+            head_input.onchange = function () {
+                if (this.files && this.files[0]) {
+                    const fileReader = new FileReader();
+                    fileReader.onload = function (e) {
+                        head.style.backgroundImage = `url(${e.target.result})`;
+                    };
+                    fileReader.readAsDataURL(this.files[0]);
+                }
+            };
+        }
+    }
+</script>
+{% endblock %}
+
+{% block main %}
+<div class="user-profile-container">
+    <h1 class="page-title">个人中心</h1>
+
+    <form action="" method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+
+        <div class="profile-header">
+            <div class="avatar-container">
+                <div class="head">
+                    {{ form.head }}
+                    <div class="avatar-overlay">
+                        点击更换头像
+                    </div>
+                </div>
+            </div>
+            <div class="head-label">{{ form.head.label_tag }}</div>
+
+            {% if form.head.errors %}
+            {% for error in form.head.errors %}
+            <p class="error-message">{{ error }}</p>
+            {% endfor %}
+            {% endif %}
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title">基本信息</h2>
+
+            <div class="form-group">
+                {{ form.username.label_tag }}
+                {{ form.username }}
+                {% if form.username.errors %}
+                {% for error in form.username.errors %}
+                <p class="error-message">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.email.label_tag }}
+                {{ form.email }}
+                {% if form.email.errors %}
+                {% for error in form.email.errors %}
+                <p class="error-message">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                {{ form.describe.label_tag }}
+                {{ form.describe }}
+                {% if form.describe.errors %}
+                {% for error in form.describe.errors %}
+                <p class="error-message">{{ error }}</p>
+                {% endfor %}
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-section">
+            <h2 class="section-title">账户信息</h2>
+
+            <div class="form-group">
+                {{ form.date_joined.label_tag }}
+                {{ form.date_joined }}
+            </div>
+
+            <div class="form-group">
+                {{ form.last_login.label_tag }}
+                {{ form.last_login }}
+            </div>
+        </div>
+
+        <button type="submit" class="btn-submit">确认修改</button>
+    </form>
+
+    <!-- 新增功能导航 -->
+    <div class="form-section">
+        <h2 class="section-title">功能导航</h2>
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'user:profile_edit' %}" class="btn btn-block btn-primary" style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-user"></i><br>
+                    详细资料
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'user:preference_edit' %}" class="btn btn-block btn-info" style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-cog"></i><br>
+                    偏好设置
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'user:points_history' %}" class="btn btn-block btn-warning"
+                    style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-star"></i><br>
+                    积分记录
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'user:messages_list' %}" class="btn btn-block btn-success" style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-envelope"></i><br>
+                    我的消息
+                </a>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'user:favorites_list' %}" class="btn btn-block btn-danger" style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-heart"></i><br>
+                    我的收藏
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'user:change_password' %}" class="btn btn-block btn-default"
+                    style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-lock"></i><br>
+                    修改密码
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'battery:orders' %}" class="btn btn-block btn-primary" style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-list-alt"></i><br>
+                    我的订单
+                </a>
+            </div>
+            <div class="col-md-3 col-sm-6">
+                <a href="{% url 'battery:usage' %}" class="btn btn-block btn-info" style="margin-bottom: 10px;">
+                    <i class="glyphicon glyphicon-time"></i><br>
+                    使用记录
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% get_user as user %}
+{% endblock %}

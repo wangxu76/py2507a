@@ -1,0 +1,78 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}我的消息{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h2><i class="glyphicon glyphicon-envelope"></i> 我的消息</h2>
+                {% if unread_count > 0 %}
+                    <span class="badge badge-danger">{{ unread_count }} 条未读</span>
+                {% endif %}
+            </div>
+            
+            {% if messages %}
+                <div class="panel panel-default">
+                    <div class="panel-body">
+                        <div class="list-group">
+                            {% for message in messages %}
+                            <a href="{% url 'user:message_detail' message.id %}" class="list-group-item {% if not message.is_read %}list-group-item-warning{% endif %}">
+                                <div class="row">
+                                    <div class="col-md-8">
+                                        <h5 class="list-group-item-heading">
+                                            {% if not message.is_read %}
+                                                <i class="glyphicon glyphicon-envelope"></i>
+                                            {% else %}
+                                                <i class="glyphicon glyphicon-envelope-open"></i>
+                                            {% endif %}
+                                            {{ message.title }}
+                                            {% if message.is_important %}
+                                                <span class="label label-danger">重要</span>
+                                            {% endif %}
+                                        </h5>
+                                        <p class="list-group-item-text">
+                                            {{ message.content|truncatechars:100 }}
+                                        </p>
+                                    </div>
+                                    <div class="col-md-4 text-right">
+                                        <small class="text-muted">
+                                            {% if message.message_type == 'system' %}
+                                                <span class="label label-primary">系统消息</span>
+                                            {% elif message.message_type == 'notification' %}
+                                                <span class="label label-info">通知消息</span>
+                                            {% elif message.message_type == 'promotion' %}
+                                                <span class="label label-success">推广消息</span>
+                                            {% elif message.message_type == 'reminder' %}
+                                                <span class="label label-warning">提醒消息</span>
+                                            {% endif %}
+                                        </small>
+                                        <br>
+                                        <small class="text-muted">
+                                            {{ message.created_at|date:"Y-m-d H:i" }}
+                                        </small>
+                                    </div>
+                                </div>
+                            </a>
+                            {% endfor %}
+                        </div>
+                    </div>
+                </div>
+            {% else %}
+                <div class="alert alert-info">
+                    <i class="glyphicon glyphicon-info-sign"></i>
+                    暂无消息
+                </div>
+            {% endif %}
+            
+            <div class="text-center">
+                <a href="{% url 'user:center' %}" class="btn btn-default">
+                    <i class="glyphicon glyphicon-arrow-left"></i> 返回个人中心
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

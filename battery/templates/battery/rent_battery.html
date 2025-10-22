@@ -1,0 +1,425 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}租赁 {{ battery.name }} - 新能源电池管理系统{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'js/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+<style>
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  }
+
+  .rent-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    text-align: center;
+    margin-bottom: 30px;
+  }
+
+  .rent-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .rent-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .rent-container {
+    max-width: 800px;
+    margin: 0 auto;
+  }
+
+  .battery-summary {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  }
+
+  .battery-info-row {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    margin-bottom: 20px;
+  }
+
+  .battery-image {
+    width: 120px;
+    height: 120px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .battery-details h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 10px;
+  }
+
+  .battery-specs {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .rent-form-card {
+    background: white;
+    border-radius: 15px;
+    padding: 40px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+  }
+
+  .form-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 30px;
+    text-align: center;
+  }
+
+  .form-group {
+    margin-bottom: 25px;
+  }
+
+  .form-group label {
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 8px;
+    display: block;
+  }
+
+  .form-control {
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 12px 15px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-control:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+
+  .price-summary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 30px;
+    margin-bottom: 30px;
+  }
+
+  .price-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .price-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  .price-item:last-child {
+    border-bottom: none;
+    font-weight: 700;
+    font-size: 1.2rem;
+    margin-top: 10px;
+    padding-top: 20px;
+    border-top: 2px solid rgba(255, 255, 255, 0.3);
+  }
+
+  .price-label {
+    opacity: 0.9;
+  }
+
+  .price-value {
+    font-weight: 600;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-top: 30px;
+  }
+
+  .btn-submit {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+  }
+
+  .btn-submit:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 25px rgba(255, 107, 107, 0.4);
+    color: white;
+  }
+
+  .btn-cancel {
+    background: #6c757d;
+    border: none;
+    color: white;
+    padding: 15px 40px;
+    border-radius: 30px;
+    font-size: 1.1rem;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    flex: 1;
+  }
+
+  .btn-cancel:hover {
+    background: #5a6268;
+    transform: translateY(-3px);
+    color: white;
+  }
+
+  .rental-terms {
+    background: #f8f9fa;
+    border-radius: 10px;
+    padding: 20px;
+    margin-top: 30px;
+  }
+
+  .terms-title {
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 15px;
+  }
+
+  .terms-list {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.6;
+  }
+
+  .terms-list li {
+    margin-bottom: 8px;
+  }
+
+  .alert-info {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    border: none;
+    color: white;
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 30px;
+  }
+
+  .alert-info .glyphicon {
+    margin-right: 10px;
+  }
+
+  @media (max-width: 768px) {
+    .battery-info-row {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- 租赁页面头部 -->
+<div class="rent-header">
+  <div class="container">
+    <h1 class="rent-title">租赁电池</h1>
+    <p class="rent-subtitle">填写租赁信息，开启绿色出行之旅</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="rent-container">
+    <!-- 电池信息摘要 -->
+    <div class="battery-summary">
+      <div class="battery-info-row">
+        <img src="{{ battery.image_url }}" alt="{{ battery.name }}" class="battery-image">
+        <div class="battery-details">
+          <h3>{{ battery.name }}</h3>
+          <div class="battery-specs">
+            <p><strong>类型：</strong>{{ battery.battery_type.category.name }} - {{ battery.battery_type.name }}</p>
+            <p><strong>规格：</strong>{{ battery.full_specs }}</p>
+            <p><strong>重量：</strong>{{ battery.weight }}kg</p>
+            <p><strong>位置：</strong>{{ battery.location }}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- 信息提示 -->
+    <div class="alert alert-info">
+      <i class="glyphicon glyphicon-info-sign"></i>
+      请仔细填写租赁信息，确认无误后提交订单。我们将在24小时内处理您的租赁申请。
+    </div>
+
+    <!-- 租赁表单 -->
+    <div class="rent-form-card">
+      <h2 class="form-title">租赁信息</h2>
+
+      <form method="post">
+        {% csrf_token %}
+
+        <div class="row">
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="{{ form.rental_days.id_for_label }}">租赁天数 *</label>
+              {{ form.rental_days }}
+              {% if form.rental_days.errors %}
+              <div class="text-danger">
+                {% for error in form.rental_days.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <div class="form-group">
+              <label for="{{ form.start_date.id_for_label }}">开始时间 *</label>
+              {{ form.start_date }}
+              {% if form.start_date.errors %}
+              <div class="text-danger">
+                {% for error in form.start_date.errors %}
+                <small>{{ error }}</small>
+                {% endfor %}
+              </div>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="{{ form.notes.id_for_label }}">备注信息</label>
+          {{ form.notes }}
+          {% if form.notes.errors %}
+          <div class="text-danger">
+            {% for error in form.notes.errors %}
+            <small>{{ error }}</small>
+            {% endfor %}
+          </div>
+          {% endif %}
+        </div>
+
+        <!-- 价格摘要 -->
+        <div class="price-summary">
+          <h3 class="price-title">费用明细</h3>
+          <div class="price-item">
+            <span class="price-label">日租金</span>
+            <span class="price-value">¥{{ battery.daily_rental_price }}/天</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">租赁天数</span>
+            <span class="price-value" id="rental-days-display">1天</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">押金</span>
+            <span class="price-value">¥{{ battery.deposit }}</span>
+          </div>
+          <div class="price-item">
+            <span class="price-label">总金额</span>
+            <span class="price-value" id="total-amount">¥{{ battery.daily_rental_price }}</span>
+          </div>
+        </div>
+
+        <!-- 操作按钮 -->
+        <div class="action-buttons">
+          <button type="submit" class="btn btn-submit">
+            <i class="glyphicon glyphicon-ok"></i> 确认租赁
+          </button>
+          <a href="{% url 'battery:detail' battery.id %}" class="btn btn-cancel">
+            <i class="glyphicon glyphicon-arrow-left"></i> 返回详情
+          </a>
+        </div>
+      </form>
+    </div>
+
+    <!-- 租赁条款 -->
+    <div class="rental-terms">
+      <h4 class="terms-title">租赁条款</h4>
+      <ul class="terms-list">
+        <li>租赁期间请妥善保管电池，避免损坏或丢失</li>
+        <li>电池归还时电量应保持在20%以上</li>
+        <li>如因使用不当造成电池损坏，需承担相应维修费用</li>
+        <li>租赁期间可提前归还，按实际使用天数计费</li>
+        <li>押金将在电池完好归还后7个工作日内退还</li>
+        <li>如有疑问，请联系客服：400-123-4567</li>
+      </ul>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  $(document).ready(function () {
+    // 动态计算总金额
+    function calculateTotal() {
+      var rentalDays = parseInt($('#id_rental_days').val()) || 1;
+      var dailyPrice = {{ battery.daily_rental_price }
+    };
+    var totalAmount = rentalDays * dailyPrice;
+
+    $('#rental-days-display').text(rentalDays + '天');
+    $('#total-amount').text('¥' + totalAmount.toFixed(2));
+  }
+
+  // 监听租赁天数变化
+  $('#id_rental_days').on('change keyup', function () {
+    calculateTotal();
+  });
+
+  // 表单提交验证
+  $('form').on('submit', function (e) {
+    var rentalDays = parseInt($('#id_rental_days').val());
+    var startDate = new Date($('#id_start_date').val());
+    var now = new Date();
+
+    if (rentalDays < 1 || rentalDays > 30) {
+      alert('租赁天数必须在1-30天之间');
+      e.preventDefault();
+      return false;
+    }
+
+    if (startDate < now) {
+      alert('开始时间不能早于当前时间');
+      e.preventDefault();
+      return false;
+    }
+
+    // 确认对话框
+    if (!confirm('确认提交租赁申请吗？')) {
+      e.preventDefault();
+      return false;
+    }
+  });
+
+  // 初始化计算
+  calculateTotal();
+});
+</script>
+{% endblock %}

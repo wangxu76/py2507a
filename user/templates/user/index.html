@@ -1,0 +1,562 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% block title %}首页{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="/static/js/swiper/swiper-bundle.min.css">
+<script src="/static/js/swiper/swiper-bundle.min.js"></script>
+<style>
+  html,
+  body {
+    position: relative;
+    height: 100%;
+  }
+
+  body {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    font-family: 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+    font-size: 14px;
+    color: #000;
+    margin: 0;
+    padding: 0;
+  }
+
+  /* 英雄区域 */
+  .hero-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 80px 0;
+    text-align: center;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="25" cy="25" r="1" fill="white" opacity="0.1"/><circle cx="75" cy="75" r="1" fill="white" opacity="0.1"/><circle cx="50" cy="10" r="0.5" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+    opacity: 0.3;
+  }
+
+  .hero-content {
+    position: relative;
+    z-index: 2;
+  }
+
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: fadeInUp 1s ease-out;
+  }
+
+  .hero-subtitle {
+    font-size: 1.3rem;
+    margin-bottom: 2rem;
+    opacity: 0.9;
+    animation: fadeInUp 1s ease-out 0.2s both;
+  }
+
+  .hero-buttons {
+    animation: fadeInUp 1s ease-out 0.4s both;
+  }
+
+  .btn-hero {
+    background: linear-gradient(45deg, #ff6b6b, #ee5a24);
+    border: none;
+    color: white;
+    padding: 15px 30px;
+    font-size: 1.1rem;
+    border-radius: 50px;
+    margin: 0 10px;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-hero:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.3);
+    color: white;
+  }
+
+  /* 功能卡片区域 */
+  .features-section {
+    padding: 80px 0;
+    background: white;
+  }
+
+  .section-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 3rem;
+    color: #333;
+    position: relative;
+  }
+
+  .section-title::after {
+    content: '';
+    position: absolute;
+    bottom: -10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80px;
+    height: 4px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 2px;
+  }
+
+  .feature-card {
+    background: white;
+    border-radius: 15px;
+    padding: 30px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+    margin-bottom: 30px;
+    border: 1px solid #f0f0f0;
+  }
+
+  .feature-card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+  }
+
+  .feature-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 20px;
+    background: linear-gradient(45deg, #667eea, #764ba2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2rem;
+    color: white;
+    transition: all 0.3s ease;
+  }
+
+  .feature-card:hover .feature-icon {
+    transform: scale(1.1);
+  }
+
+  .feature-title {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin-bottom: 15px;
+    color: #333;
+  }
+
+  .feature-description {
+    color: #666;
+    line-height: 1.6;
+  }
+
+  /* 数据统计区域 */
+  .stats-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 60px 0;
+  }
+
+  .stat-item {
+    text-align: center;
+    padding: 20px;
+  }
+
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: #ffd700;
+  }
+
+  .stat-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  /* 轮播图区域 */
+  .swiper-section {
+    background: #f8f9fa;
+    padding: 80px 0;
+  }
+
+  .swiper {
+    width: 100%;
+    padding-top: 50px;
+    padding-bottom: 50px;
+  }
+
+  .swiper-slide {
+    background-position: center;
+    background-size: cover;
+    width: 300px;
+    height: 300px;
+    border-radius: 15px;
+    overflow: hidden;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+    transition: all 0.3s ease;
+  }
+
+  .swiper-slide:hover {
+    transform: scale(1.05);
+  }
+
+  .swiper-slide img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+.container .row{
+    margin-right: 15px;
+    margin-left: -15px;
+    z-index: 1000;
+}
+  /* 动画效果 */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .fade-in-up {
+    animation: fadeInUp 0.8s ease-out;
+  }
+
+  /* 响应式设计 */
+  @media (max-width: 768px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+
+    .hero-subtitle {
+      font-size: 1.1rem;
+    }
+
+    .feature-card {
+      margin-bottom: 20px;
+    }
+  }
+
+
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- 英雄区域 -->
+<section class="hero-section">
+  <div class="container">
+    <div class="hero-content">
+      <h1 class="hero-title">新能源电池租赁管理系统</h1>
+      <p class="hero-subtitle">智能电池管理，绿色能源未来</p>
+      <div class="hero-buttons">
+        <a href="{% url 'battery:list' %}" class="btn btn-hero">立即租电</a>
+        <a href="{% url 'user:center' %}" class="btn btn-hero">个人中心</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 功能特色区域 -->
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title">核心功能</h2>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-flash"></i>
+          </div>
+          <h3 class="feature-title">智能电池管理</h3>
+          <p class="feature-description">实时监控电池状态，智能调度电池资源，确保高效利用和最佳性能。</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-phone"></i>
+          </div>
+          <h3 class="feature-title">移动端支持</h3>
+          <p class="feature-description">随时随地通过手机APP管理电池租赁，查看实时数据和历史记录。</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-stats"></i>
+          </div>
+          <h3 class="feature-title">数据分析</h3>
+          <p class="feature-description">深度分析电池使用情况，提供详细报告和优化建议。</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-leaf"></i>
+          </div>
+          <h3 class="feature-title">绿色环保</h3>
+          <p class="feature-description">推广清洁能源使用，减少碳排放，为环保事业贡献力量。</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-time"></i>
+          </div>
+          <h3 class="feature-title">24/7服务</h3>
+          <p class="feature-description">全天候技术支持，随时解决用户问题，确保服务不间断。</p>
+        </div>
+      </div>
+      <div class="col-md-4">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-lock"></i>
+          </div>
+          <h3 class="feature-title">安全可靠</h3>
+          <p class="feature-description">多重安全防护，数据加密传输，保障用户信息和资金安全。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 数据统计区域 -->
+<section class="stats-section">
+  <div class="container">
+    <div class="row">
+      <div class="col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">10,000+</div>
+          <div class="stat-label">活跃用户</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">50,000+</div>
+          <div class="stat-label">电池设备</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">99.9%</div>
+          <div class="stat-label">系统稳定性</div>
+        </div>
+      </div>
+      <div class="col-md-3">
+        <div class="stat-item">
+          <div class="stat-number">24/7</div>
+          <div class="stat-label">技术支持</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- 产品展示轮播图 -->
+<section class="swiper-section">
+  <div class="container">
+    <h2 class="section-title">产品展示</h2>
+    <div class="swiper mySwiper">
+      <div class="swiper-wrapper">
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材1.jpg' %}" alt="电池产品1" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材2.jpg' %}" alt="电池产品2" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材3.jpg' %}" alt="电池产品3" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材4.jpg' %}" alt="电池产品4" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材5.jpg' %}" alt="电池产品5" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材6.jpg' %}" alt="电池产品6" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材7.jpg' %}" alt="电池产品7" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材8.jpg' %}" alt="电池产品8" />
+        </div>
+        <div class="swiper-slide">
+          <img src="{% static '/img/素材9.jpg' %}" alt="电池产品9" />
+        </div>
+      </div>
+      <div class="swiper-pagination"></div>
+    </div>
+  </div>
+</section>
+
+<!-- 服务优势区域 -->
+<section class="features-section">
+  <div class="container">
+    <h2 class="section-title">服务优势</h2>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-ok-circle"></i>
+          </div>
+          <h3 class="feature-title">专业团队</h3>
+          <p class="feature-description">拥有10年以上新能源行业经验的专业团队，为您提供最优质的服务。</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-usd"></i>
+          </div>
+          <h3 class="feature-title">价格透明</h3>
+          <p class="feature-description">公开透明的价格体系，无隐藏费用，让您租得放心，用得安心。</p>
+        </div>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-refresh"></i>
+          </div>
+          <h3 class="feature-title">快速响应</h3>
+          <p class="feature-description">30秒内响应客户需求，1小时内提供解决方案，让您享受极速服务。</p>
+        </div>
+      </div>
+      <div class="col-md-6">
+        <div class="feature-card">
+          <div class="feature-icon">
+            <i class="glyphicon glyphicon-heart"></i>
+          </div>
+          <h3 class="feature-title">贴心服务</h3>
+          <p class="feature-description">从咨询到使用，全程贴心服务，让您感受到家的温暖。</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+{% endblock %}
+
+{% block js %}
+<script>
+  // 轮播图初始化
+  var swiper = new Swiper(".mySwiper", {
+    effect: "coverflow",
+    grabCursor: true,
+    centeredSlides: true,
+    slidesPerView: "auto",
+    coverflowEffect: {
+      rotate: 50,
+      stretch: 0,
+      depth: 100,
+      modifier: 1,
+      slideShadows: true,
+    },
+    pagination: {
+      el: ".swiper-pagination",
+    },
+    autoplay: {
+      delay: 3000,
+      disableOnInteraction: false,
+    },
+  });
+
+  // 滚动动画效果
+  $(document).ready(function () {
+    // 为功能卡片添加滚动动画
+    $(window).scroll(function () {
+      $('.feature-card').each(function () {
+        var elementTop = $(this).offset().top;
+        var elementBottom = elementTop + $(this).outerHeight();
+        var viewportTop = $(window).scrollTop();
+        var viewportBottom = viewportTop + $(window).height();
+
+        if (elementBottom > viewportTop && elementTop < viewportBottom) {
+          $(this).addClass('fade-in-up');
+        }
+      });
+    });
+
+    // 数字计数动画
+    function animateNumbers() {
+      $('.stat-number').each(function () {
+        var $this = $(this);
+        var countTo = $this.attr('data-count');
+
+        if (countTo) {
+          $({ countNum: $this.text() }).animate({
+            countNum: countTo
+          }, {
+            duration: 2000,
+            easing: 'linear',
+            step: function () {
+              $this.text(Math.floor(this.countNum));
+            },
+            complete: function () {
+              $this.text(this.countNum);
+            }
+          });
+        }
+      });
+    }
+
+    // 当统计区域进入视口时触发数字动画
+    $(window).scroll(function () {
+      var statsSection = $('.stats-section');
+      var statsTop = statsSection.offset().top;
+      var statsBottom = statsTop + statsSection.outerHeight();
+      var viewportTop = $(window).scrollTop();
+      var viewportBottom = viewportTop + $(window).height();
+
+      if (statsBottom > viewportTop && statsTop < viewportBottom) {
+        if (!statsSection.hasClass('animated')) {
+          statsSection.addClass('animated');
+          animateNumbers();
+        }
+      }
+    });
+
+    // 为统计数字添加data-count属性
+    $('.stat-number').each(function () {
+      var text = $(this).text();
+      var number = text.replace(/[^0-9]/g, '');
+      if (number) {
+        $(this).attr('data-count', number).text('0');
+      }
+    });
+  });
+
+  // 平滑滚动到指定区域
+  function smoothScrollTo(target) {
+    $('html, body').animate({
+      scrollTop: $(target).offset().top - 80
+    }, 800);
+  }
+
+  // 为按钮添加点击事件
+  $('.btn-hero').click(function (e) {
+    e.preventDefault();
+    var href = $(this).attr('href');
+    if (href === '#') {
+      smoothScrollTo('.features-section');
+    }
+  });
+</script>
+{% endblock %}

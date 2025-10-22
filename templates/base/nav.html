@@ -1,0 +1,136 @@
+{% load static %}
+<style>
+    /* ===== 左侧边栏主题 ===== */
+    .nav-sidebar {
+        position: fixed;
+        left: 0;
+        top: 0;
+        width: 220px;
+        height: 100%;
+        background: linear-gradient(135deg, #d4fc79 0%, #96e6a1 100%);
+        border-right: 1px solid #ddd;
+        padding: 20px 0;
+        overflow-y: auto;
+    }
+
+    .nav-sidebar .nav {
+        display: block;
+        /* 垂直堆叠 */
+    }
+
+    .nav-sidebar .nav>li>a {
+        display: block;
+        padding: 10px 20px;
+        color: #333;
+        border-radius: 0;
+    }
+
+    .nav-sidebar .nav>li>a:hover {
+        background: #e6e6e6;
+    }
+
+    /* 用户头像区域 */
+    .user-profile-header {
+        padding: 20px;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .avatar-link {
+        display: inline-block;
+        text-decoration: none;
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .avatar-link:hover {
+        transform: scale(1.05);
+    }
+
+    .sidebar-avatar {
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        cursor: pointer;
+        transition: border-color 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .avatar-link:hover .sidebar-avatar {
+        border-color: rgba(255, 255, 255, 0.6);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    }
+
+    .user-info {
+        flex: 1;
+    }
+
+    .user-info .user-name {
+        color: #333;
+        font-weight: 600;
+        font-size: 16px;
+        margin-bottom: 2px;
+    }
+
+    .user-info .user-email {
+        color: #666;
+        font-size: 12px;
+        opacity: 0.8;
+    }
+
+    /* 右侧主内容预留间距 */
+    html,
+    body {
+        overflow-x: hidden;
+        /* 防止横向滚动条 */
+    }
+
+    body {
+        padding-left: 220px;
+        /* 与侧边栏同宽，避免引起总宽度溢出 */
+        /* 与侧边栏同宽 */
+
+    }
+</style>
+
+<!-- 左侧边栏 -->
+<nav class="nav-sidebar">
+    {% if request.user.is_authenticated %}
+    <div class="user-profile-header">
+        <a href="{% url 'user:center' %}" class="avatar-link">
+            <img src="/media/{{ request.user.head }}" alt="用户头像" class="sidebar-avatar">
+        </a>
+        <div class="user-info">
+            <div class="user-name">{{ request.user.username }}</div>
+            <div class="user-email">{{ request.user.email }}</div>
+        </div>
+    </div>
+    {% endif %}
+    <ul class="nav nav-pills nav-stacked">
+        <li><a href="{% url 'user:index' %}">主页</a></li>
+        <li><a href="{% url 'user:center' %}">个人中心</a></li>
+
+        {# 电池租赁功能 #}
+        <li><a href="{% url 'battery:list' %}">电池租赁</a></li>
+        <li><a href="{% url 'battery:categories' %}">电池分类</a></li>
+        {% if request.user.is_authenticated %}
+        <li><a href="{% url 'battery:orders' %}">我的订单</a></li>
+        <li><a href="{% url 'battery:usage' %}">使用情况</a></li>
+        <li><a href="{% url 'station:nearby' %}">附近网点</a></li>
+        <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">账户安全 <span class="caret"></span></a>
+            <ul class="dropdown-menu" style="margin:0;border:none;border-radius:0;width:100%;">
+                <li><a href="{% url 'user:change_password' %}">修改密码</a></li>
+                <li><a href="{% url 'user:logout' %}">退出登录</a></li>
+            </ul>
+        </li>
+        {% else %}
+        <li><a href="{% url 'user:login' %}">登录</a></li>
+        <li><a href="{% url 'user:register' %}">注册</a></li>
+        {% endif %}
+    </ul>
+</nav>

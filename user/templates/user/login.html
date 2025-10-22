@@ -1,0 +1,30 @@
+{% extends 'user/user_base.html' %}
+{% block title %}登录 - 新能源电池租赁管理系统{% endblock %}
+{% block form %}
+<div class="text-center mb-4">
+    <h3 class="fw-bold text-gradient">新能源电池租赁管理系统</h3>
+    <small class="text-muted">登录以继续</small>
+</div>
+
+<form method="post" novalidate>
+    {% csrf_token %}
+
+    <div class="flow-input">
+        <input type="text" name="username" id="id_username" required placeholder=" ">
+        <label for="id_username">用户名</label>
+        {{ form.username.errors }}
+    </div>
+
+    <div class="flow-input">
+        <input type="password" name="password" id="id_password" required placeholder=" ">
+        <label for="id_password">密码</label>
+        {{ form.password.errors }}
+    </div>
+
+    <button class="btn-gradient btn-lg mb-3" type="submit">登 录</button>
+
+    <div class="text-center">
+        还没有账号？<a href="{% url 'user:register' %}" class="text-decoration-none">立即注册</a>
+    </div>
+</form>
+{% endblock %}

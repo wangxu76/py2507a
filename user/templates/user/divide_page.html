@@ -1,0 +1,91 @@
+{% extends 'base/base.html' %}
+{% load static %}
+{% load My_temp %}
+{% block main %}
+
+<!-- 1. 列表 -->
+<div class="container mt-4">
+  <table class="table table-bordered align-middle">
+    <thead class="table-light">
+      <tr>
+        <th>ID</th>
+        <th>用户名</th>
+        <th>邮箱</th>
+      </tr>
+    </thead>
+    <tbody>
+      {% for user in page_obj %}
+      <tr>
+        <td>{{ user.id }}</td>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+      </tr>
+      {% empty %}
+      <tr><td colspan="3" class="text-center text-muted">暂无数据</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+
+
+<nav aria-label="Page navigation example">
+  <ul class="pagination">
+    <li class="page-item">
+      <a class="page-link" href="#" aria-label="Previous">
+        <span aria-hidden="true">&laquo;</span>
+      </a>
+    </li>
+    <li class="page-item"><a class="page-link" href="#">1</a></li>
+    <li class="page-item"><a class="page-link" href="#">2</a></li>
+    <li class="page-item"><a class="page-link" href="#">3</a></li>
+    <li class="page-item">
+      <a class="page-link" href="#" aria-label="Next">
+        <span aria-hidden="true">&raquo;</span>
+      </a>
+    </li>
+  </ul>
+</nav>
+
+  <!-- 2. 分页导航 -->
+{#  {% if page_obj.has_other_pages %}#}
+{#  <nav aria-label="Page navigation">#}
+{#    <ul class="pagination justify-content-center">#}
+      {# 上一页 #}
+{#      {% if page_obj.has_previous %}#}
+{#        <li class="page-item">#}
+{#          <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>#}
+{#        </li>#}
+{#      {% else %}#}
+{#        <li class="page-item disabled">#}
+{#          <span class="page-link">上一页</span>#}
+{#        </li>#}
+{#      {% endif %}#}
+{##}
+      {# 页码 #}
+{#      {% for num in page_obj.paginator.page_range %}#}
+{#        {% if page_obj.number == num %}#}
+{#          <li class="page-item active" aria-current="page">#}
+{#            <span class="page-link">{{ num }}</span>#}
+{#          </li>#}
+{#        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}#}
+{#          <li class="page-item">#}
+{#            <a class="page-link" href="?page={{ num }}">{{ num }}</a>#}
+{#          </li>#}
+{#        {% endif %}#}
+{#      {% endfor %}#}
+{##}
+      {# 下一页 #}
+{#      {% if page_obj.has_next %}#}
+{#        <li class="page-item">#}
+{#          <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>#}
+{#        </li>#}
+{#      {% else %}#}
+{#        <li class="page-item disabled">#}
+{#          <span class="page-link">下一页</span>#}
+{#        </li>#}
+{#      {% endif %}#}
+{#    </ul>#}
+{#  </nav>#}
+{#  {% endif %}#}
+</div>
+
+{% endblock %}

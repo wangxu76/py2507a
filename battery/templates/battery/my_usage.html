@@ -1,0 +1,659 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}我的电池使用情况 - 新能源电池管理系统{% endblock %}
+
+{% block css %}
+<link rel="stylesheet" href="{% static 'js/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+<style>
+  body {
+    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+    font-family: 'Microsoft YaHei', Helvetica, Arial, sans-serif;
+  }
+
+  .page-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    padding: 40px 0;
+    margin-bottom: 30px;
+    text-align: center;
+    margin-left: 15px;
+    margin-right: 0;
+  }
+
+  .page-title {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+  }
+
+  .page-subtitle {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+
+  .current-usage-card {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    margin-bottom: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    {#border-left: 5px solid #27ae60;#}
+  }
+
+  .usage-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .usage-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .status-badge {
+    background: #27ae60;
+    color: white;
+    padding: 6px 15px;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    font-weight: 600;
+  }
+
+  .battery-info {
+    display: flex;
+    gap: 20px;
+    margin-bottom: 30px;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+  }
+
+  .battery-image {
+    width: 90px;
+    height: 90px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    flex-shrink: 0;
+  }
+
+  .battery-details {
+    flex: 1;
+  }
+
+  .battery-details h3 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 6px;
+  }
+
+  .battery-specs {
+    color: #666;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+
+  .battery-specs p {
+    margin: 2px 0;
+  }
+
+  .charge-section {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px;
+    padding: 20px;
+    margin-bottom: 20px;
+    text-align: center;
+  }
+
+  .charge-title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 10px;
+  }
+
+  .charge-display {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 8px;
+    color: #ffd700;
+  }
+
+  .charge-bar {
+    width: 100%;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 9px;
+    overflow: hidden;
+    margin-bottom: 12px;
+  }
+
+  .charge-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #ff6b6b, #ffd700);
+    border-radius: 10px;
+    transition: width 0.5s ease;
+  }
+
+  .charge-actions {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+  }
+
+  .btn-update-charge {
+    background: rgba(255, 255, 255, 0.2);
+    border: 2px solid white;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    transition: all 0.3s ease;
+  }
+
+  .btn-update-charge:hover {
+    background: white;
+    color: #667eea;
+    transform: translateY(-2px);
+  }
+
+  .usage-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+  }
+
+  .stat-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 10px;
+    text-align: center;
+    transition: all 0.3s ease;
+  }
+
+  .stat-item:hover {
+    background: #e9ecef;
+    transform: translateY(-2px);
+  }
+
+  .stat-label {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+  }
+
+  .history-section {
+    background: white;
+    border-radius: 20px;
+    padding: 30px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+  }
+
+  .section-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .history-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 20px;
+    border-bottom: 1px solid #eee;
+    transition: all 0.3s ease;
+  }
+
+  .history-item:hover {
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+
+  .history-item:last-child {
+    border-bottom: none;
+  }
+
+  .history-image {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 10px;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .history-info {
+    flex: 1;
+  }
+
+  .history-battery-name {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 5px;
+  }
+
+  .history-details {
+    color: #666;
+    font-size: 0.9rem;
+    line-height: 1.4;
+  }
+
+  .history-status {
+    padding: 6px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+  }
+
+  .status-completed {
+    background: #27ae60;
+    color: white;
+  }
+
+  .status-active {
+    background: #3498db;
+    color: white;
+  }
+
+
+
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+  }
+
+  .empty-state i {
+    font-size: 4rem;
+    color: #ddd;
+    margin-bottom: 20px;
+  }
+
+  .modal-content {
+    border-radius: 15px;
+    border: none;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+    border-radius: 15px 15px 0 0;
+    border: none;
+  }
+
+  .modal-body {
+    padding: 30px;
+  }
+
+  .charge-input {
+    font-size: 2rem;
+    text-align: center;
+    border: 2px solid #e9ecef;
+    border-radius: 10px;
+    padding: 15px;
+    margin: 20px 0;
+  }
+
+  .charge-input:focus {
+    border-color: #667eea;
+    box-shadow: 0 0 0 0.2rem rgba(102, 126, 234, 0.25);
+  }
+
+  @media (max-width: 768px) {
+    .battery-info {
+      flex-direction: column;
+      text-align: center;
+    }
+
+    .usage-stats {
+      grid-template-columns: 1fr;
+    }
+
+    .history-item {
+      flex-direction: column;
+      text-align: center;
+    }
+
+  }
+  .container {
+      padding-left: 3px !important;
+  }
+
+</style>
+{% endblock %}
+
+{% block main %}
+<!-- 页面头部 -->
+<div class="page-header">
+  <div class="container" style=" padding-left: 3px;">
+    <h1 class="page-title">我的电池使用情况</h1>
+    <p class="page-subtitle">实时监控您的电池状态和使用历史</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- 当前使用情况 -->
+  {% if active_usage %}
+  <div class="current-usage-card">
+    <div class="usage-header">
+      <h2 class="usage-title">
+        <i class="glyphicon glyphicon-flash"></i>
+        当前使用中
+      </h2>
+      <span class="status-badge">使用中</span>
+    </div>
+
+    <div class="battery-info">
+      <img src="{{ active_usage.battery.image_url }}" alt="{{ active_usage.battery.name }}" class="battery-image">
+      <div class="battery-details">
+        <h3>{{ active_usage.battery.name }}</h3>
+        <div class="battery-specs">
+          <p><strong>类型：</strong>{{ active_usage.battery.battery_type.name }}</p>
+          <p><strong>规格：</strong>{{ active_usage.battery.full_specs }}</p>
+          <p><strong>开始时间：</strong>{{ active_usage.start_time|date:"Y-m-d H:i" }}</p>
+          <p><strong>使用时长：</strong>{{ active_usage.total_usage_hours }}小时</p>
+        </div>
+      </div>
+    </div>
+
+    <div class="charge-section">
+      <h3 class="charge-title">当前电量</h3>
+      <div class="charge-display" id="current-charge">{{ active_usage.current_charge }}%</div>
+      <div class="charge-bar">
+        <div class="charge-fill" id="charge-fill" style="width: {{ active_usage.current_charge }}%"></div>
+      </div>
+      <div class="charge-actions">
+        <button id="toggleDischargeBtn" class="btn-update-charge">
+          <i class="glyphicon glyphicon-play"></i>
+          {% if active_usage.is_discharging %}停止放电{% else %}开始使用{% endif %}
+        </button>
+        <button class="btn-update-charge" data-toggle="modal" data-target="#updateChargeModal">
+          <i class="glyphicon glyphicon-edit"></i> 更新电量
+        </button>
+      </div>
+    </div>
+
+    <div class="usage-stats">
+      <div class="stat-item">
+        <div class="stat-label">使用时长</div>
+        <div class="stat-value">{{ active_usage.total_usage_hours }}h</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">当前电量</div>
+        <div class="stat-value">{{ active_usage.current_charge }}%</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">电池容量</div>
+        <div class="stat-value">{{ active_usage.battery.capacity }}Ah</div>
+      </div>
+      <div class="stat-item">
+        <div class="stat-label">电池电压</div>
+        <div class="stat-value">{{ active_usage.battery.voltage }}V</div>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="current-usage-card">
+    <div class="empty-state">
+      <i class="glyphicon glyphicon-flash"></i>
+      <h3>当前没有使用中的电池</h3>
+      <p>您还没有租赁任何电池，快去选择心仪的电池吧！</p>
+      <a href="{% url 'battery:list' %}" class="btn btn-primary">
+        <i class="glyphicon glyphicon-shopping-cart"></i> 立即租赁
+      </a>
+    </div>
+  </div>
+  {% endif %}
+
+  <!-- 使用历史 -->
+  <div class="history-section">
+    <h2 class="section-title">
+      <i class="glyphicon glyphicon-time"></i>
+      使用历史
+    </h2>
+
+    {% if page_obj %}
+    {% for usage in page_obj %}
+    {% if not usage.is_active %}
+    <div class="history-item">
+      <img src="{{ usage.battery.image_url }}" alt="{{ usage.battery.name }}" class="history-image">
+      <div class="history-info">
+        <div class="history-battery-name">{{ usage.battery.name }}</div>
+        <div class="history-details">
+          <p><strong>开始时间：</strong>{{ usage.start_time|date:"Y-m-d H:i" }}</p>
+          {% if usage.end_time %}
+          <p><strong>结束时间：</strong>{{ usage.end_time|date:"Y-m-d H:i" }}</p>
+          {% endif %}
+          <p><strong>使用时长：</strong>{{ usage.total_usage_hours }}小时</p>
+          <p><strong>最终电量：</strong>{{ usage.current_charge }}%</p>
+        </div>
+      </div>
+      <span class="history-status status-completed">
+        已完成
+      </span>
+    </div>
+    {% endif %}
+    {% endfor %}
+
+    <!-- 分页 -->
+    {% if page_obj.has_other_pages %}
+    <div class="pagination" style="margin-top: 30px; text-align: center;">
+      <nav aria-label="使用历史分页">
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?page=1">首页</a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?page={{ page_obj.previous_page_number }}">上一页</a>
+          </li>
+          {% endif %}
+
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %} <li class="page-item">
+            <a class="page-link" href="?page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.next_page_number }}">下一页</a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">末页</a>
+            </li>
+            {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+
+    {% else %}
+    <div class="empty-state">
+      <i class="glyphicon glyphicon-time"></i>
+      <h3>暂无使用记录</h3>
+      <p>您还没有任何电池使用记录</p>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- 更新电量模态框 -->
+<div class="modal fade" id="updateChargeModal" tabindex="-1" role="dialog">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h4 class="modal-title">
+          <i class="glyphicon glyphicon-edit"></i>
+          更新电池电量
+        </h4>
+      </div>
+      <div class="modal-body">
+        <form id="chargeForm">
+          {% csrf_token %}
+          <p>请输入当前电池电量百分比（0-100）：</p>
+          <input type="number" id="chargeInput" class="charge-input" min="0" max="100"
+            value="{{ active_usage.current_charge|default:'0' }}" placeholder="0">
+          <div class="text-center">
+            <button type="button" class="btn btn-primary" onclick="updateCharge()">
+              <i class="glyphicon glyphicon-ok"></i> 确认更新
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+  // 获取CSRF token
+  function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+      const cookies = document.cookie.split(';');
+      for (let i = 0; i < cookies.length; i++) {
+        const cookie = cookies[i].trim();
+        if (cookie.substring(0, name.length + 1) === (name + '=')) {
+          cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+          break;
+        }
+      }
+    }
+    return cookieValue;
+  }
+
+  const csrftoken = getCookie('csrftoken');
+
+  // 放电开始/停止切换
+  $(document).on('click', '#toggleDischargeBtn', function () {
+    var usageId = {{ active_usage.id }};
+  if (!usageId || usageId === 0) {
+    alert('没有找到使用记录');
+    return;
+  }
+  var isDischarging = {{ active_usage.is_discharging| lower }};
+  var nextAction = isDischarging ? 'stop' : 'start';
+  var btn = $(this);
+  btn.prop('disabled', true).text('处理中...');
+
+  fetch('/battery/usage/' + usageId + '/toggle/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': csrftoken
+    },
+    body: 'action=' + nextAction
+  })
+    .then(r => r.json())
+    .then(data => {
+      if (data.success) {
+        location.reload();
+      } else {
+        alert('操作失败：' + (data.error || '未知错误'));
+      }
+    })
+    .catch(err => {
+      console.error(err);
+      alert('网络异常，请重试');
+    })
+    .finally(() => {
+      btn.prop('disabled', false);
+    });
+  });
+
+  function updateCharge() {
+    var charge = parseInt($('#chargeInput').val());
+    var usageId = {{ active_usage.id }};
+
+  if (isNaN(charge) || charge < 0 || charge > 100) {
+    alert('电量必须在0-100之间');
+    return;
+  }
+
+  if (usageId === 0) {
+    alert('没有找到使用记录');
+    return;
+  }
+
+  // 使用fetch API发送请求
+  fetch('/battery/usage/' + usageId + '/update-charge/', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/x-www-form-urlencoded',
+      'X-CSRFToken': csrftoken
+    },
+    body: 'charge=' + charge
+  })
+    .then(response => response.json())
+    .then(data => {
+      if (data.success) {
+        $('#current-charge').text(charge + '%');
+        $('#charge-fill').css('width', charge + '%');
+        $('.stat-value').eq(1).text(charge + '%');
+        $('#updateChargeModal').modal('hide');
+        alert('电量更新成功！');
+        location.reload();
+      } else {
+        alert('更新失败：' + (data.error || '未知错误'));
+      }
+    })
+    .catch(error => {
+      console.error('Error:', error);
+      alert('更新失败，请重试');
+    });
+  }
+
+  $(document).ready(function () {
+    // 电量输入框实时预览
+    $('#chargeInput').on('input', function () {
+      var charge = parseInt($(this).val()) || 0;
+      if (charge >= 0 && charge <= 100) {
+        // 可以在这里添加实时预览效果
+      }
+    });
+
+    // 历史记录项悬停效果
+    $('.history-item').hover(
+      function () {
+        $(this).css('background', '#f8f9fa');
+      },
+      function () {
+        $(this).css('background', 'transparent');
+      }
+    );
+  });
+</script>
+{% endblock %}

@@ -1,0 +1,139 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}积分记录{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="page-header">
+                <h2><i class="glyphicon glyphicon-star"></i> 积分记录</h2>
+            </div>
+            
+            <!-- 积分统计 -->
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="panel panel-success">
+                        <div class="panel-body text-center">
+                            <h3 class="text-success">{{ current_points }}</h3>
+                            <p>当前积分</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-info">
+                        <div class="panel-body text-center">
+                            <h3 class="text-info">{{ total_points }}</h3>
+                            <p>累计获得</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="panel panel-warning">
+                        <div class="panel-body text-center">
+                            <h3 class="text-warning">{{ spent_points }}</h3>
+                            <p>已消费</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- 积分记录列表 -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>积分变动记录</h4>
+                </div>
+                <div class="panel-body">
+                    {% if points_records %}
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th>时间</th>
+                                        <th>类型</th>
+                                        <th>积分变动</th>
+                                        <th>原因</th>
+                                        <th>操作后余额</th>
+                                        <th>详细说明</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for record in points_records %}
+                                    <tr>
+                                        <td>{{ record.created_at|date:"Y-m-d H:i:s" }}</td>
+                                        <td>
+                                            {% if record.point_type == 'earn' %}
+                                                <span class="label label-success">获得</span>
+                                            {% elif record.point_type == 'spend' %}
+                                                <span class="label label-danger">消费</span>
+                                            {% elif record.point_type == 'expire' %}
+                                                <span class="label label-warning">过期</span>
+                                            {% elif record.point_type == 'refund' %}
+                                                <span class="label label-info">退款</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            {% if record.point_type == 'earn' %}
+                                                <span class="text-success">+{{ record.points }}</span>
+                                            {% else %}
+                                                <span class="text-danger">{{ record.points }}</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>{{ record.reason }}</td>
+                                        <td>{{ record.balance_after }}</td>
+                                        <td>{{ record.description|default:"-" }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    {% else %}
+                        <div class="alert alert-info">
+                            <i class="glyphicon glyphicon-info-sign"></i>
+                            暂无积分记录
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <!-- 积分说明 -->
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>积分获取方式</h4>
+                </div>
+                <div class="panel-body">
+                    <ul class="list-group">
+                        <li class="list-group-item">
+                            <span class="badge">+5</span>
+                            收藏电池
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge">+10</span>
+                            完成租赁订单
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge">+20</span>
+                            发表评价
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge">+50</span>
+                            首次实名认证
+                        </li>
+                        <li class="list-group-item">
+                            <span class="badge">+100</span>
+                            邀请好友注册
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{% url 'user:center' %}" class="btn btn-default">
+                    <i class="glyphicon glyphicon-arrow-left"></i> 返回个人中心
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

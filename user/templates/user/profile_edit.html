@@ -1,0 +1,101 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}个人资料编辑{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="page-header">
+                <h2><i class="glyphicon glyphicon-user"></i> 个人资料编辑</h2>
+            </div>
+            
+            {% if messages %}
+                {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    {{ message }}
+                </div>
+                {% endfor %}
+            {% endif %}
+            
+            <form method="post" class="form-horizontal">
+                {% csrf_token %}
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">性别</label>
+                    <div class="col-sm-9">
+                        <select name="gender" class="form-control">
+                            <option value="">请选择</option>
+                            <option value="male" {% if profile.gender == 'male' %}selected{% endif %}>男</option>
+                            <option value="female" {% if profile.gender == 'female' %}selected{% endif %}>女</option>
+                            <option value="other" {% if profile.gender == 'other' %}selected{% endif %}>其他</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">生日</label>
+                    <div class="col-sm-9">
+                        <input type="date" name="birthday" class="form-control" value="{{ profile.birthday|date:'Y-m-d' }}">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">地址</label>
+                    <div class="col-sm-9">
+                        <textarea name="address" class="form-control" rows="3" placeholder="请输入您的地址">{{ profile.address }}</textarea>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">紧急联系人</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="emergency_contact" class="form-control" value="{{ profile.emergency_contact }}" placeholder="请输入紧急联系人姓名">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">紧急联系电话</label>
+                    <div class="col-sm-9">
+                        <input type="tel" name="emergency_phone" class="form-control" value="{{ profile.emergency_phone }}" placeholder="请输入紧急联系电话">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">身份证号</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="id_card" class="form-control" value="{{ profile.id_card }}" placeholder="请输入身份证号">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">职业</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="occupation" class="form-control" value="{{ profile.occupation }}" placeholder="请输入您的职业">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">公司</label>
+                    <div class="col-sm-9">
+                        <input type="text" name="company" class="form-control" value="{{ profile.company }}" placeholder="请输入您的公司名称">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <div class="col-sm-offset-3 col-sm-9">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="glyphicon glyphicon-save"></i> 保存资料
+                        </button>
+                        <a href="{% url 'user:center' %}" class="btn btn-default">
+                            <i class="glyphicon glyphicon-arrow-left"></i> 返回
+                        </a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

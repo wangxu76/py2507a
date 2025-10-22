@@ -1,0 +1,74 @@
+{% extends 'base/base.html' %}
+
+
+{% block css %}
+<style>
+.head{
+    width: 200px;
+    height: 200px;
+    border: 1px solid lightblue;
+    border-radius: 50%;
+    background: url("/media/{{ request.user.head }}") no-repeat center;
+    background-size: contain;
+}
+.head input{
+    display: block;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+}
+.head input:hover{
+    cursor: pointer;
+}
+
+</style>
+{% endblock %}
+
+
+{% block js %}
+<script>
+window.onload = function (){
+
+    let head_input = document.querySelector(".head input");
+    let head = document.querySelector(".head");
+    head_input.onchange = function (){
+        const fileReader = new FileReader()
+        fileReader.onload = function (e){
+            console.log(e.target.result)
+            head.style.backgroundImage = `url(${e.target.result})`;
+        }
+        fileReader.readAsDataURL(this.files[0])
+    }
+
+}
+
+</script>
+
+{% endblock %}
+
+{% block main %}
+   <h1>修改头像</h1>
+
+    <form action="" method="post" enctype="multipart/form-data">
+     {% csrf_token %}
+
+        <div class="form-group">
+            {{ form.head.label_tag }}
+            <div class="head">
+                {{ form.head }}
+{#                <img src="/media/{{ request.user.head }}" alt="">#}
+            </div>
+
+                  {% if form.head.errors %}
+                {% for error in form.head.errors  %}
+                    <p class="text-danger">{{ error }}</p>
+                {% endfor %}
+            {% endif %}
+
+        </div>
+
+
+    </form>
+
+ <button type="submit" class="btn btn-default">确认修改</button>
+{% endblock %}

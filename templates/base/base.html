@@ -1,0 +1,119 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>
+        {% block title %}
+
+        {% endblock %}
+    </title>
+    {% block css %}
+
+    {% endblock %}
+    <link rel="stylesheet" href="{% static 'js/bootstrap-3.4.1-dist/css/bootstrap.min.css' %}">
+    <style>
+        body {
+            background: linear-gradient(to right, pink, skyblue);
+        }
+
+
+        .navbar-brand {
+            font-weight: 600;
+            letter-spacing: .3px;
+        }
+
+        .container-main {
+            padding-top: 24px;
+            padding-bottom: 40px;
+        }
+
+        .page-header {
+            margin-top: 0;
+        }
+
+        .footer {
+            color: #888;
+            font-size: 12px;
+            padding: 24px 0;
+        }
+
+        /* 用户头像样式 */
+        .user-avatar-container {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            transition: background 0.3s ease, transform 0.2s ease;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .user-avatar-container:hover {
+            background: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .user-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        .user-avatar-container:hover .user-avatar {
+            border-color: #4CAF50;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+        }
+
+        .user-name {
+            color: #333;
+            font-weight: 500;
+            font-size: 14px;
+        }
+    </style>
+</head>
+
+<body>
+    {% include 'base/nav.html' %}
+    <nav class="navbar navbar-default">
+        <div class="container">
+            <div class="navbar-header">
+                <a class="navbar-brand" href="/">欢迎来到---新能源电池租赁管理系统</a>
+            </div>
+            {% if request.user.is_authenticated %}
+            <div class="navbar-right">
+                <a href="{% url 'user:center' %}" class="user-avatar-container">
+                    <img src="/media/{{ request.user.head }}" alt="用户头像" class="user-avatar">
+                    <span class="user-name">{{ request.user.username }}</span>
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </nav>
+    <div class="container container-main">
+        {% block main %}
+
+        {% endblock %}
+
+
+
+    </div>
+
+    <script src="{% static 'js/jquery-3.7.1.min.js' %}"></script>
+    <script src="{% static 'js/bootstrap-3.4.1-dist/js/bootstrap.min.js' %}"></script>
+    {% block js %}
+
+    {% endblock %}
+</body>
+
+</html>

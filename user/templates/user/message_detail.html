@@ -1,0 +1,102 @@
+{% extends 'base/base.html' %}
+{% load static %}
+
+{% block title %}{{ message.title }}{% endblock %}
+
+{% block main %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-8 col-md-offset-2">
+            <div class="page-header">
+                <h2>
+                    {% if message.is_important %}
+                        <i class="glyphicon glyphicon-exclamation-sign text-danger"></i>
+                    {% else %}
+                        <i class="glyphicon glyphicon-envelope"></i>
+                    {% endif %}
+                    {{ message.title }}
+                </h2>
+                <div class="text-muted">
+                    <small>
+                        {% if message.message_type == 'system' %}
+                            <span class="label label-primary">系统消息</span>
+                        {% elif message.message_type == 'notification' %}
+                            <span class="label label-info">通知消息</span>
+                        {% elif message.message_type == 'promotion' %}
+                            <span class="label label-success">推广消息</span>
+                        {% elif message.message_type == 'reminder' %}
+                            <span class="label label-warning">提醒消息</span>
+                        {% endif %}
+                        &nbsp;
+                        <i class="glyphicon glyphicon-time"></i>
+                        {{ message.created_at|date:"Y-m-d H:i:s" }}
+                    </small>
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-body">
+                    <div class="message-content">
+                        {{ message.content|linebreaks }}
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <small class="text-muted">
+                                {% if message.is_read %}
+                                    <i class="glyphicon glyphicon-ok text-success"></i>
+                                    已读 - {{ message.read_at|date:"Y-m-d H:i:s" }}
+                                {% else %}
+                                    <i class="glyphicon glyphicon-envelope text-warning"></i>
+                                    未读
+                                {% endif %}
+                            </small>
+                        </div>
+                        <div class="col-md-6 text-right">
+                            {% if not message.is_read %}
+                                <button class="btn btn-sm btn-primary" onclick="markAsRead({{ message.id }})">
+                                    <i class="glyphicon glyphicon-ok"></i> 标记为已读
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="text-center">
+                <a href="{% url 'user:messages_list' %}" class="btn btn-default">
+                    <i class="glyphicon glyphicon-arrow-left"></i> 返回消息列表
+                </a>
+                <a href="{% url 'user:center' %}" class="btn btn-primary">
+                    <i class="glyphicon glyphicon-home"></i> 个人中心
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function markAsRead(messageId) {
+    fetch(`{% url 'user:mark_message_read' 0 %}`.replace('0', messageId), {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            location.reload();
+        } else {
+            alert(data.message || '操作失败');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('操作失败，请重试');
+    });
+}
+</script>
+{% endblock %}
